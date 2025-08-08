@@ -1,34 +1,46 @@
 import numpy as np
+import cv2
 
-def compute_histogram_intersection(img1: np.ndarray, img2: np.ndarray) -> float:
+def compute_histogram_intersection(image_path1: str, image_path2: str) -> float:
     """
-    Compute the histogram intersection similarity score between two grayscale images.
-
-    This function calculates the similarity between the grayscale intensity 
-    distributions of two images by computing the intersection of their 
-    normalized 256-bin histograms.
-
-    The histogram intersection is defined as the sum of the minimum values 
-    in each corresponding bin of the two normalized histograms. The result 
-    ranges from 0.0 (no overlap) to 1.0 (identical histograms).
+    Compute the histogram intersection similarity score between two grayscale images
+    loaded from given file paths.
 
     Parameters:
-        img1 (np.ndarray): First input image as a 2D NumPy array (grayscale).
-        img2 (np.ndarray): Second input image as a 2D NumPy array (grayscale).
+        image_path1 (str): Path to the first grayscale image.
+        image_path2 (str): Path to the second grayscale image.
 
     Returns:
         float: Histogram intersection score in the range [0.0, 1.0].
 
     Raises:
-        ValueError: If either input is not a 2D array (i.e., not grayscale).
-    """    
+        ValueError: If images cannot be read or are not 2D grayscale images.
+    """
+    # Load both images as grayscale
+    img1 = cv2.imread(image_path1, cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread(image_path2, cv2.IMREAD_GRAYSCALE)
+
+    # Check if images were loaded correctly
+    if img1 is None:
+        raise ValueError(f"Image at path '{image_path1}' could not be read.")
+    if img2 is None:
+        raise ValueError(f"Image at path '{image_path2}' could not be read.")
+
     if img1.ndim != 2 or img2.ndim != 2:
         raise ValueError("Both input images must be 2D grayscale arrays.")
 
     ### START CODE HERE ###
-    # Step 1: initialize base image with 0.5
-    intersection = 0.0
-    ### END CODE HERE ###
 
+    img1_flat = img1.flatten()
+    img2_flat = img2.flatten()
+
+    hist1, _ = np.histogram(img1_flat, bins=256, range=(0, 256))
+    hist2, _ = np.histogram(img2_flat, bins=256, range=(0, 256))
+
+    hist1 = hist1 / hist1.sum()
+    hist2 = hist2 / hist2.sum()
+
+    intersection = np.sum(np.minimum(hist1, hist2))
+    ### END CODE HERE ###
 
     return float(intersection)
