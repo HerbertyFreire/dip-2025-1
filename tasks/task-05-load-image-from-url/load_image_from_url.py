@@ -1,16 +1,3 @@
-"""
-load_image_from_url_solution.py
-
-This script loads an image from a given URL and displays it using OpenCV.
-
-Usage:
-    python load_image_from_url_solution.py <image_url>
-
-Examples:
-    python load_image_from_url_solution.py https://raw.githubusercontent.com/tfvieira/dip-2025-1/main/img/aerial.tif
-    python load_image_from_url_solution.py https://raw.githubusercontent.com/tfvieira/dip-2025-1/main/img/aerial.tif --grayscale
-"""
-
 import urllib.request
 import cv2 as cv
 import numpy as np
@@ -33,10 +20,12 @@ def load_image_from_url(url: str, flags: int = cv.IMREAD_COLOR) -> np.ndarray:
     - RuntimeError: If the image cannot be loaded or decoded.
     """
     try:
-        ### START CODE HERE ###
-        ### TODO
-        image = None
-        ### END CODE HERE ###
+        resp = urllib.request.urlopen(url)
+        img_bytes = np.asarray(bytearray(resp.read()), dtype=np.uint8)
+        image = cv.imdecode(img_bytes, flags)
+
+        if image is None:
+            raise RuntimeError("Decoding failed. Image is None.")
 
         return image
 
@@ -46,20 +35,20 @@ def load_image_from_url(url: str, flags: int = cv.IMREAD_COLOR) -> np.ndarray:
 
 def main():
     parser = argparse.ArgumentParser(description="Load and display an image from a URL.")
-    parser.add_argument("url", type=str, help="Direct URL to the image file.")
+    parser.add_argument("url", type=str, nargs="?",
+                        default="https://raw.githubusercontent.com/tfvieira/dip-2025-1/main/img/aerial.tif",
+                        help="Direct URL to the image file (default: aerial.tif).")
     parser.add_argument("--grayscale", action="store_true", help="Load the image in grayscale mode.")
     args = parser.parse_args()
 
     print(f"[INFO] Downloading image from: {args.url}")
 
-    # Choose flag based on optional argument
     flag = cv.IMREAD_GRAYSCALE if args.grayscale else cv.IMREAD_COLOR
 
     try:
         img = load_image_from_url(args.url, flags=flag)
         print("[INFO] Image loaded successfully.")
 
-        # Display the image
         cv.namedWindow('Image from URL', cv.WINDOW_KEEPRATIO)
         cv.imshow('Image from URL', img)
         cv.waitKey(0)
