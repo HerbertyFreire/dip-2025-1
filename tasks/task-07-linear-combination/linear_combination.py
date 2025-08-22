@@ -23,7 +23,7 @@ def linear_combination(i1: np.ndarray, i2: np.ndarray, a1: float, a2: float) -> 
         raise ValueError("Input images must have the same dimensions.")
 
     ### START CODE HERE ###
-    # Usando OpenCV para combinar as imagens com pesos
+
     i_out = cv.addWeighted(i1, a1, i2, a2, 0)
     ### END CODE HERE ###
 
