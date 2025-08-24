@@ -114,9 +114,8 @@ def _mse(i1: np.ndarray, i2: np.ndarray) -> float:
     """
     ### START CODE HERE ###
     ### TODO
-    mse = None
+    mse = np.mean((i1 - i2) ** 2)
     ### END CODE HERE ###
-
     return mse
 
 
@@ -141,7 +140,11 @@ def _psnr(i1: np.ndarray, i2: np.ndarray, data_range: float = 1.0) -> float:
     """
     ### START CODE HERE ###
     ### TODO
-    psnr = None
+    mse = _mse(i1, i2)
+    if mse == 0:
+        psnr = np.inf
+    else:
+        psnr = 10 * np.log10((data_range ** 2) / mse)
     ### END CODE HERE ###
 
     return psnr
@@ -171,7 +174,17 @@ def _ssim(i1: np.ndarray, i2: np.ndarray, *, C1: float = 1e-8, C2: float = 1e-8)
     """
     ### START CODE HERE ###
     ### TODO
-    ssim = None
+    mu1 = np.mean(i1)
+    mu2 = np.mean(i2)
+
+    sigma1_sq = np.var(i1)
+    sigma2_sq = np.var(i2)
+    sigma12 = np.mean((i1 - mu1) * (i2 - mu2))
+
+    numerator = (2 * mu1 * mu2 + C1) * (2 * sigma12 + C2)
+    denominator = (mu1 ** 2 + mu2 ** 2 + C1) * (sigma1_sq + sigma2_sq + C2)
+
+    ssim = numerator / denominator
     ### END CODE HERE ###
 
     return ssim
@@ -200,7 +213,19 @@ def _npcc(i1: np.ndarray, i2: np.ndarray) -> float:
 
     ### START CODE HERE ###
     ### TODO
-    npcc = None
+    mu1 = np.mean(i1)
+    mu2 = np.mean(i2)
+
+    num = np.sum((i1 - mu1) * (i2 - mu2))
+    den = np.sqrt(np.sum((i1 - mu1) ** 2) * np.sum((i2 - mu2) ** 2))
+
+    if den == 0:
+        if np.allclose(i1, i2):
+            npcc = 1.0
+        else:
+            npcc = 0.0
+    else:
+        npcc = num / den
     ### END CODE HERE ###
 
     return npcc
