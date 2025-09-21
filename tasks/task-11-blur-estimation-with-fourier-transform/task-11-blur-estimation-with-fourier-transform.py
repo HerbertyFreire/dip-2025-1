@@ -1,7 +1,7 @@
 """
 task-11-blur-estimation-with-fourier-transform.py
 
->>> IMPORTANT <<<
+#IMPORTANT #
 Implement the function `frequency_blur_score` below.
 
 Rules:
@@ -40,10 +40,34 @@ def frequency_blur_score(
     Returns
     -------
     float
-        A scalar score. You should make it so that SHARPER images get a HIGHER score.
-        (This will align with the grader's expectation.)
+        A scalar score. SHARPER images get a HIGHER score.
     """
-    # ====== YOUR CODE STARTS HERE ======
-    score = 0.0
-    # ====== YOUR CODE ENDS HERE ======
+
+    if image.ndim == 3 and image.shape[2] == 3:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = image.copy()
+
+
+    gray = gray.astype(np.float32)
+
+
+    f = np.fft.fft2(gray)
+    fshift = np.fft.fftshift(f)
+
+
+    h, w = gray.shape
+    cy, cx = h // 2, w // 2
+    half = center_size // 2
+    fshift[cy - half:cy + half, cx - half:cx + half] = 0
+
+
+    magnitude = np.abs(fshift)
+
+
+    magnitude = np.log1p(magnitude)
+
+
+    score = float(np.mean(magnitude))
+
     return score
